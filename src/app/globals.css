@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200");
+@layer base {
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: #fff8f5;
+    color: #4f2907;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(225,165,122,0.4); border-radius: 10px; }
+}
+
+@layer components {
+  /* .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    user-select: none;
+  } */
+   .material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+  .nav-active {
+    background: rgba(255, 220, 197, 0.6);
+    color: #4f2907;
+    font-weight: 700;
+    border-right: 3px solid #a14200;
+  }
+
+  .nav-item {
+    transition: background 0.15s;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 220, 197, 0.3);
+  }
+
+  .toggle-on  { background: #006c5c; }
+  .toggle-off { background: #c7b9ad; }
+
+  .badge-published { background: #61f4d8; color: #00443a; }
+  .badge-premium   { background: #e8deff; color: #5b1edd; }
+  .badge-pending   { background: #fa7150; color: #671200; }
+}
