@@ -144,7 +144,11 @@ export default function ContentPage() {
   };
   return (
     <>
-      <Topbar placeholder="Search content library…" />
+     <Topbar
+  placeholder="Search content library…"
+  value={searchInput}
+  onChange={setSearchInput}
+/>
 
       <main className="p-8 max-w-7xl mx-auto w-full space-y-8">
 
@@ -185,11 +189,11 @@ export default function ContentPage() {
           </button>
         </div>
 
-        {/* SEARCH */}
+        SEARCH
         <div className="flex-1 relative">
 
           {/* SEARCH ICON */}
-          <Icon
+          {/* <Icon
             name="search"
             size={18}
             className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
@@ -206,7 +210,7 @@ export default function ContentPage() {
             }}
             placeholder="Search quotes, stickers, snippets..."
             className="w-full h-12 pl-12 pr-10 rounded-full bg-surface-container-low border border-outline-variant/20 text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary transition-all"
-          />
+          /> */}
 
           {/* CLEAR BUTTON */}
           {searchInput && (
@@ -430,17 +434,39 @@ export default function ContentPage() {
         )}
 
         {/* EMPTY */}
-        {!loading &&
+        {/* {!loading &&
           contentList.length === 0 && (
             <div className="py-20 text-center text-on-surface-variant">
               No content found
             </div>
-          )}
+          )} */}
+
+{!loading && contentList.length === 0 && (
+  <div className="bg-white rounded-3xl p-12 text-center border border-orange-100">
+    <Icon
+      name="search_off"
+      size={48}
+      className="text-primary mx-auto mb-4"
+    />
+
+    <h3 className="text-xl font-bold">
+      No content found
+    </h3>
+
+    <p className="text-on-surface-variant mt-2">
+      {searchQuery
+        ? `No results found for "${searchQuery}"`
+        : "No content available"}
+    </p>
+  </div>
+)}
+
+
 
         {/* FOOTER */}
         <div className="flex items-center justify-between pt-6 pb-8 border-t border-outline-variant/10">
 
-          <p className="text-sm text-on-surface-variant">
+          {/* <p className="text-sm text-on-surface-variant">
 
             Showing{" "}
 
@@ -449,7 +475,29 @@ export default function ContentPage() {
             </strong>{" "}
 
             items
-          </p>
+          </p> */}
+
+
+          <p className="text-sm text-on-surface-variant">
+  {searchQuery ? (
+    <>
+      Found{" "}
+      <strong className="text-on-surface">
+        {contentList.length}
+      </strong>{" "}
+      results for "
+      <strong>{searchQuery}</strong>"
+    </>
+  ) : (
+    <>
+      Showing{" "}
+      <strong className="text-on-surface">
+        {contentList.length}
+      </strong>{" "}
+      items
+    </>
+  )}
+</p>
 
           <div className="flex gap-2">
 

@@ -24,12 +24,18 @@ interface Stats {
 
 export default function SubscriptionsPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
+
+  const [search, setSearch] = useState("");
+
   const [stats, setStats] = useState<Stats>({
     active_users: 0,
     premium_users: 0,
     free_users: 0,
     total_revenue: 0,
   });
+
+  
+
     const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -64,16 +70,62 @@ export default function SubscriptionsPage() {
     }
   };
 
-  const freePlan = plans.find((p) => p.plan_type === 2);
 
-  const premiumPlans = plans.filter(
+const searchText = search.toLowerCase().trim();
+
+const statsMatch =
+  String(stats.active_users).includes(searchText) ||
+  String(stats.premium_users).includes(searchText) ||
+  String(stats.free_users).includes(searchText) ||
+  String(stats.total_revenue).includes(searchText);
+
+const filteredPlans = plans.filter((plan) => {
+  return (
+    plan.plan_name
+      ?.toLowerCase()
+      .includes(searchText) ||
+
+    String(plan.amount)
+      .includes(searchText) ||
+
+    String(plan.duration_months)
+      .includes(searchText) ||
+
+    (plan.plan_type === 1
+      ? "premium"
+      : "free")
+      .includes(searchText) ||
+
+    (plan.is_active === 1
+      ? "active"
+      : "inactive")
+      .includes(searchText)
+  );
+});
+
+
+
+
+const filteredFreePlan =
+  filteredPlans.find(
+    (p) => p.plan_type === 2
+  );
+
+const filteredPremiumPlans =
+  filteredPlans.filter(
     (p) => p.plan_type === 1
   );
+
+
 
   if (loading) {
     return (
       <>
-        <Topbar placeholder="Search plans…" />
+        <Topbar
+  placeholder="Search plans…"
+  value={search}
+  onChange={setSearch}
+/>
         <div className="flex justify-center items-center h-[70vh]">
           <p className="text-primary text-lg font-bold">
             Loading subscriptions...
@@ -85,7 +137,11 @@ export default function SubscriptionsPage() {
 
   return (
     <>
-      <Topbar placeholder="Search plans…" />
+     <Topbar
+  placeholder="Search plans…"
+  value={search}
+  onChange={setSearch}
+/>
 
       <main className="p-8 max-w-7xl mx-auto w-full space-y-8 pb-16">
         {/* HEADER */}
@@ -174,7 +230,7 @@ export default function SubscriptionsPage() {
         </div>
 
         {/* FREE PLAN */}
-        {freePlan && (
+        {filteredFreePlan && (
           <div className="bg-surface-container-lowest rounded-[30px] p-8 relative overflow-hidden border border-orange-100">
             <div className="absolute -top-16 -right-16 w-56 h-56 bg-primary/5 rounded-full blur-3xl" />
 
@@ -185,7 +241,7 @@ export default function SubscriptionsPage() {
                 </span>
 
                 <h2 className="text-4xl font-black mt-4 font-headline">
-                  {freePlan.plan_name}
+                  {filteredFreePlan.plan_name}
                 </h2>
 
                 <p className="text-on-surface-variant mt-3 max-w-md">
@@ -196,11 +252,11 @@ export default function SubscriptionsPage() {
 
               <div className="text-right">
                 <h2 className="text-5xl font-black font-headline">
-                  ₹{freePlan.amount}
+                  ₹{filteredFreePlan.amount}
                 </h2>
 
                 <p className="text-on-surface-variant">
-                  {freePlan.duration_months} Month
+                  {filteredFreePlan.duration_months} Month
                 </p>
 
                 <button className="mt-5 px-6 py-3 bg-surface-container-high rounded-xl font-bold text-primary hover:scale-105 transition-all flex items-center gap-2">
@@ -219,7 +275,7 @@ export default function SubscriptionsPage() {
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {premiumPlans.map((plan) => (
+            {filteredPremiumPlans.map((plan) => (
               <div
                 key={plan.plan_id_PK}
                 className="bg-white rounded-[30px] overflow-hidden shadow-xl shadow-primary/10 flex border border-orange-100"
@@ -308,6 +364,30 @@ export default function SubscriptionsPage() {
             ))}
           </div>
         </div>
+
+          {filteredPlans.length === 0 &&
+  !statsMatch &&
+  searchText && (
+    <div className="bg-white rounded-3xl p-12 text-center border border-orange-100">
+      <Icon
+        name="search_off"
+        size={48}
+        className="text-primary mx-auto mb-4"
+      />
+
+      <h3 className="text-xl font-bold">
+        No results found
+      </h3>
+
+      <p className="text-on-surface-variant mt-2">
+        Try searching by plan name,
+        amount, duration,
+        active status,
+        plan type,
+        or revenue statistics.
+      </p>
+    </div>
+)}
       </main>
     </>
   );
