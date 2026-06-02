@@ -62,8 +62,8 @@ const res = await fetch("http://localhost:3000/api/plans/create", {
 
     // optional success UX
     router.push("/subscriptions");
-  } catch (err: any) {
-    setError(err.message || "Something went wrong");
+  } catch (err: unknown) {
+    setError((err as Error).message || "Something went wrong");
   } finally {
     setLoading(false);
   }

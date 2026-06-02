@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect,useCallback, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
+import Image from "next/image";
 
 import Topbar from "@/components/Topbar";
 import Icon from "@/components/Icon";
@@ -40,52 +41,48 @@ export default function EditBannerPage() {
     category_id_FK: "",
   });
 
-  useEffect(() => {
+ 
+
+const loadBanner = useCallback(async () => {
+  try {
+    const res = await axios.get(
+      `${API_URL}/api/banner/get-banner/${bannerId}`
+    );
+
+    const banner = res.data.data;
+
+    setForm({
+      title: banner.title || "",
+      subtitle: banner.subtitle || "",
+      image_url: banner.image_url || "",
+      bg_gradient_start:
+        banner.bg_gradient_start || "#FF6B6B",
+      bg_gradient_end:
+        banner.bg_gradient_end || "#FFD93D",
+      action_route:
+        banner.action_route || "",
+      action_label:
+        banner.action_label || "",
+      category_id_FK:
+        banner.category_id_FK?.toString() || "",
+    });
+
+    setPreviewImage(
+      banner.image_url || ""
+    );
+  } catch (error: unknown) {
+    console.error(error);
+
+    alert("Failed to load banner");
+  } finally {
+    setFetching(false);
+  }
+}, [bannerId]);
+
+
+ useEffect(() => {
     loadBanner();
-  }, []);
-
-  const loadBanner = async () => {
-    try {
-      const res = await axios.get(
-        `${API_URL}/api/banner/get-banner/${bannerId}`
-      );
-
-      const banner = res.data.data;
-
-      setForm({
-        title: banner.title || "",
-        subtitle:
-          banner.subtitle || "",
-        image_url:
-          banner.image_url || "",
-        bg_gradient_start:
-          banner.bg_gradient_start ||
-          "#FF6B6B",
-        bg_gradient_end:
-          banner.bg_gradient_end ||
-          "#FFD93D",
-        action_route:
-          banner.action_route || "",
-        action_label:
-          banner.action_label || "",
-        category_id_FK:
-          banner.category_id_FK?.toString() ||
-          "",
-      });
-
-      setPreviewImage(
-        banner.image_url || ""
-      );
-    } catch (error) {
-      console.error(error);
-
-      alert(
-        "Failed to load banner"
-      );
-    } finally {
-      setFetching(false);
-    }
-  };
+  }, [loadBanner]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -401,16 +398,16 @@ export default function EditBannerPage() {
             </h3>
 
             <div className="rounded-2xl overflow-hidden bg-surface-container-low shadow-sm">
-              {previewImage && (
-                <div className="h-56">
-                  <img
-                    src={previewImage}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-
+             {previewImage && (
+  <div className="relative h-56 w-full">
+    <Image
+      src={previewImage}
+      alt="Preview"
+      fill
+      className="object-cover"
+    />
+  </div>
+)}
               <div
                 className="p-8 text-white"
                 style={{

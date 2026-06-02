@@ -49,8 +49,8 @@ useEffect(() => {
         plan_type: plan.plan_type?.toString() || "1",
         is_active: plan.is_active?.toString() || "1",
       });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -135,8 +135,8 @@ useEffect(() => {
       }
 
       router.push("/subscriptions");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError((err as Error).message);
     } finally {
       setSaving(false);
     }

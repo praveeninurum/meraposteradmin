@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import Image from "next/image";
 
 import Topbar from "@/components/Topbar";
 import Icon from "@/components/Icon";
@@ -370,14 +371,13 @@ export default function AddBannerPage() {
 
               {(previewImage || form.image_url) && (
                 <div className="h-56 relative">
-                  <img
-                    src={
-                      previewImage ||
-                      form.image_url
-                    }
-                    alt="Banner Preview"
-                    className="w-full h-full object-cover"
-                  />
+                 <Image
+  src={previewImage}
+  alt="Preview"
+  width={100}
+  height={100}
+  className="h-24 w-24 rounded object-cover"
+/>
                 </div>
               )}
 

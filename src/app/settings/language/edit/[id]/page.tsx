@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useCallback,useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 
@@ -29,35 +29,38 @@ export default function EditLanguagePage() {
     iso_code: "",
   });
 
-  useEffect(() => {
-    fetchLanguage();
-  }, []);
 
-  const fetchLanguage = async () => {
-    try {
-      const res = await axios.get(
-        `${API_URL}/api/language/get-language/${languageId}`
-      );
 
-      const language =
-        res.data?.data;
+const fetchLanguage = useCallback(async () => {
+  try {
+    const res = await axios.get(
+      `${API_URL}/api/language/get-language/${languageId}`
+    );
 
-      setForm({
-        name: language?.name || "",
-        native_name:
-          language?.native_name || "",
-        iso_code:
-          language?.iso_code || "",
-      });
-    } catch (error) {
-      console.error(error);
-      alert(
-        "Failed to load language"
-      );
-    } finally {
-      setPageLoading(false);
-    }
-  };
+    const language = res.data?.data;
+
+    setForm({
+      name: language?.name || "",
+      native_name:
+        language?.native_name || "",
+      iso_code:
+        language?.iso_code || "",
+    });
+  } catch (error: unknown) {
+    console.error(error);
+
+    alert(
+      "Failed to load language"
+    );
+  } finally {
+    setPageLoading(false);
+  }
+}, [languageId]);
+
+useEffect(() => {
+  fetchLanguage();
+}, [fetchLanguage]);
+
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
