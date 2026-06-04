@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 // import Topbar from "@/components/Topbar";
 import StatCard from "@/components/StatCard";
-import Icon from "@/components/Icon";
+import Icon from "@/components/Icon";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://139.59.1.109:3000";
 
@@ -68,12 +68,14 @@ export default function Dashboard() {
         usersRes,
         categoriesRes,
         contentRes,
-        activityRes
+        activityRes,
+        allCategoriesRes,
       ] = await Promise.all([
         axios.get(`${API_URL}/api/user/users`),
         axios.get(`${API_URL}/api/content/trending/categories`),
         axios.get(`${API_URL}/api/content`),
         axios.get(`${API_URL}/api/activity/recent`),
+        axios.get(`${API_URL}/api/categories`),
       ]);
 
       const users =
@@ -82,18 +84,20 @@ export default function Dashboard() {
       const categoriesData =
         categoriesRes?.data?.data || [];
 
+      const allCategories =
+        allCategoriesRes?.data?.data || [];
+
       const content =
         contentRes?.data?.data || [];
-        const activity =
-  activityRes?.data?.data || [];
+      const activity =
+        activityRes?.data?.data || [];
 
       // COUNTS
-   // COUNTS
-setTotalUsers(users.length);
-setUsers(users);
+      setTotalUsers(users.length);
+      setUsers(users);
 
-setTotalCategories(categoriesData.length);
-setTotalContent(content.length);
+      setTotalCategories(allCategories.length);
+      setTotalContent(content.length);
       // SAVE CATEGORIES
       setCategories(categoriesData);
 setRecentActivity(activity);

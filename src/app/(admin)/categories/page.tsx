@@ -9,7 +9,8 @@ import { useRouter } from "next/navigation";
 import Topbar from "@/components/Topbar";
 import Icon from "@/components/Icon";
 import Toggle from "@/components/Toggle";
-import Link from "next/link";
+import Link from "next/link";
+
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://139.59.1.109:3000";
 
@@ -45,7 +46,10 @@ export default function CategoriesPage() {
         })
       );
 
+
       setRows(formattedData);
+     
+  
     }
   } catch (error: unknown) {
     console.error("Category Fetch Error =>", error);
@@ -166,7 +170,9 @@ const filteredRows = rows.filter((item) =>
             </p>
 
             <h3 className="text-3xl font-bold mt-1 font-headline text-on-surface">
-              {filteredRows.length}
+              {/* {filteredRows.length} */}
+               {rows.length}
+              
             </h3>
 
             <Icon
