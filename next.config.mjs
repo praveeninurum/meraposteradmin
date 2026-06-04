@@ -17,6 +17,13 @@ const nextConfig = {
         port: "3000",
       },
 
+      // Production server
+      {
+        protocol: "http",
+        hostname: "139.59.1.109",
+        port: "3000",
+      },
+
       // Your production API domain
       {
         protocol: "https",
