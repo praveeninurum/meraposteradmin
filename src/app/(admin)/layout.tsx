@@ -25,10 +25,10 @@ const pathname = usePathname();
 
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-surface flex text-on-surface">
+      <div className="h-screen bg-surface flex text-on-surface overflow-hidden">
 
         {/* SIDEBAR */}
-        <aside className="w-72 bg-surface-container-low border-r border-outline-variant/10 flex flex-col">
+        <aside className="w-72 bg-surface-container-low border-r border-outline-variant/10 flex flex-col h-full">
 
           <div className="p-6 border-b border-outline-variant/10">
             <h1 className="text-xl font-extrabold text-on-surface">
@@ -64,12 +64,12 @@ const pathname = usePathname();
         </aside>
 
         {/* MAIN */}
-        <div className="flex-1 flex flex-col">
-          <header className="h-16 bg-surface-container-low border-b border-outline-variant/10 flex items-center px-6">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <header className="h-16 bg-surface-container-low border-b border-outline-variant/10 flex items-center px-6 shrink-0">
             <h2 className="font-bold">Admin Dashboard</h2>
           </header>
 
-          <main className="flex-1 p-6 bg-surface">
+          <main className="flex-1 overflow-y-auto bg-surface">
             {children}
           </main>
         </div>

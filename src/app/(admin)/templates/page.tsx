@@ -6,7 +6,7 @@ import Image from "next/image";
 
 import Topbar from "@/components/Topbar";
 import Icon from "@/components/Icon";
-import Toggle from "@/components/Toggle";
+import Toggle from "@/components/Toggle";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://139.59.1.109:3000";
 
@@ -92,6 +92,30 @@ export default function TemplatesPage() {
 
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
+  };
+
+  const toggleCategoryStatus = async (
+    id: number,
+    currentActive: number | null
+  ): Promise<number> => {
+    const newActive = currentActive === 1 ? 0 : 1;
+    await axios.patch(`${API_URL}/api/categories/${id}/status`, {
+      is_active: newActive,
+    });
+    return newActive;
+  };
+
+  const handleToggle = async (category: Category) => {
+    try {
+      const newStatus = await toggleCategoryStatus(category.id, category.is_active);
+      setCategories((prev) =>
+        prev.map((c) =>
+          c.id === category.id ? { ...c, is_active: newStatus } : c
+        )
+      );
+    } catch (err) {
+      console.error("Failed to update active status", err);
+    }
   };
 
   return (
@@ -218,7 +242,7 @@ export default function TemplatesPage() {
 
                           <Toggle
                             on={filteredCategories[0].is_active === 1}
-                            onChange={() => { }}
+                            onChange={() => handleToggle(filteredCategories[0])}
                           />
                         </div>
                       </div>
@@ -286,7 +310,7 @@ export default function TemplatesPage() {
 
                       <Toggle
                         on={c.is_active === 1}
-                        onChange={() => { }}
+                        onChange={() => handleToggle(c)}
                       />
                     </div>
                   </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Topbar from "@/components/Topbar";
-import Icon from "@/components/Icon";
+import Icon from "@/components/Icon";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://139.59.1.109:3000";
 
@@ -114,7 +114,7 @@ useEffect(() => {
       setSaving(true);
 
       const res = await fetch(
-        `${API_URL}/api/plans/update/${planId}`,
+        `${API_URL}/api/plans/${planId}`,
         {
           method: "PUT",
           headers: {

@@ -6,7 +6,7 @@ import Image from "next/image";
 import axios from "axios";
 
 import Topbar from "@/components/Topbar";
-import Icon from "@/components/Icon";
+import Icon from "@/components/Icon";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://139.59.1.109:3000";
 type Language = {
@@ -89,11 +89,11 @@ const fetchSettings = async () => {
 
     const data = {
       application_name:
-        res.data.data?.application_name || "",
+        res.data.data?.app_name || "",
       brand_tagline:
         res.data.data?.brand_tagline || "",
       primary_logo:
-        res.data.data?.primary_logo || "",
+        res.data.data?.logo_url || "",
     };
 
     setSettings(data);
@@ -188,8 +188,12 @@ const handleSaveSettings = async () => {
     setSaving(true);
 
     await axios.put(
-      `${API_URL}/api/settings/update`,
-      settings
+      `${API_URL}/api/settings`,
+      {
+        app_name: settings.application_name,
+        brand_tagline: settings.brand_tagline,
+        logo_url: settings.primary_logo,
+      }
     );
 setOriginalSettings(settings);
     alert("Settings updated successfully");
@@ -339,9 +343,15 @@ setLogoPreview("");
                 <div className="w-20 h-20 bg-white rounded-xl overflow-hidden shadow-md shrink-0 relative">
   {logoPreview || settings.primary_logo ? (
   <Image
-    src={logoPreview || settings.primary_logo}
+    src={
+      logoPreview ||
+      (settings.primary_logo.startsWith("/")
+        ? `${API_URL}${settings.primary_logo}`
+        : settings.primary_logo)
+    }
     alt="Logo Preview"
     fill
+    unoptimized
     className="object-contain p-2"
   />
 ) : (
