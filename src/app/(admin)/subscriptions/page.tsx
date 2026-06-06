@@ -5,7 +5,7 @@ import Image from "next/image";
 import Topbar from "@/components/Topbar";
 import Icon from "@/components/Icon";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://139.59.1.109:3000";
 interface Plan {
@@ -36,9 +36,7 @@ export default function SubscriptionsPage() {
     total_revenue: 0,
   });
 
-  
-
-    const router = useRouter();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(true);
 
@@ -50,20 +48,34 @@ export default function SubscriptionsPage() {
     try {
       setLoading(true);
 
-      const [plansRes, statsRes] = await Promise.all([
+      const [plansRes, statsRes, usersRes] = await Promise.all([
         fetch(`${API_URL}/api/plans`),
         fetch(`${API_URL}/api/stats`),
+        fetch(`${API_URL}/api/user/users`),
       ]);
 
       const plansData = await plansRes.json();
       const statsData = await statsRes.json();
+      const usersData = await usersRes.json();
 
       if (plansData.status) {
         setPlans(plansData.data);
       }
 
-      if (statsData.status) {
-        setStats(statsData.data);
+      if (statsData.status || usersData.status === "success") {
+        const users: { is_premium: number | null; status: number | null }[] =
+          usersData.data || [];
+
+        const premiumUsers = users.filter((u) => Number(u.is_premium) === 1).length;
+        const freeUsers = users.filter((u) => Number(u.is_premium) === 2 || !u.is_premium).length;
+        const activeUsers = users.filter((u) => Number(u.status) === 1).length;
+
+        setStats({
+          active_users: activeUsers,
+          premium_users: premiumUsers,
+          free_users: freeUsers,
+          total_revenue: statsData.data?.total_revenue ?? 0,
+        });
       }
     } catch (error) {
       console.log("FETCH ERROR:", error);
@@ -232,9 +244,11 @@ const filteredPremiumPlans =
         </div>
 
         {/* FREE PLAN */}
-        {filteredFreePlan && (
+        {filteredFreePlan && (() => {
+          const freePlan = filteredFreePlan;
+          return (
           <div className="bg-surface-container-lowest rounded-[30px] p-8 relative overflow-hidden border border-orange-100">
-            <div className="absolute -top-16 -right-16 w-56 h-56 bg-primary/5 rounded-full blur-3xl" />
+            <div className="absolute -top-16 -right-16 w-56 h-56 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 flex justify-between items-center flex-wrap gap-8">
               <div>
@@ -243,7 +257,7 @@ const filteredPremiumPlans =
                 </span>
 
                 <h2 className="text-4xl font-black mt-4 font-headline">
-                  {filteredFreePlan.plan_name}
+                  {freePlan.plan_name}
                 </h2>
 
                 <p className="text-on-surface-variant mt-3 max-w-md">
@@ -254,21 +268,25 @@ const filteredPremiumPlans =
 
               <div className="text-right">
                 <h2 className="text-5xl font-black font-headline">
-                  ₹{filteredFreePlan.amount}
+                  ₹{freePlan.amount}
                 </h2>
 
                 <p className="text-on-surface-variant">
-                  {filteredFreePlan.duration_months} Month
+                  {freePlan.duration_months} Month
                 </p>
 
-                <button className="mt-5 px-6 py-3 bg-surface-container-high rounded-xl font-bold text-primary hover:scale-105 transition-all flex items-center gap-2">
+                <button
+                  onClick={() => router.push(`/subscriptions/edit-plan/${freePlan.plan_id_PK}`)}
+                  className="mt-5 px-6 py-3 bg-surface-container-high rounded-xl font-bold text-primary cursor-pointer hover:scale-105 transition-all flex items-center gap-2"
+                >
                   <Icon name="edit" size={18} />
                   Edit Plan
                 </button>
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* PREMIUM PLANS HORIZONTAL */}
         <div>

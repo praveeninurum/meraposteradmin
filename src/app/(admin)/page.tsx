@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -16,14 +16,11 @@ type Category = {
   lang_type?: string;
 };
 
-type ChartItem = {
-  day: string;
-  users: number;
-};
 type User = {
   user_id_PK: number;
   full_name: string | null;
   email: string | null;
+  status: number | null;
   created_at: string;
 };
 
@@ -37,6 +34,8 @@ type RecentActivity = {
   created_at: string;
 };
 
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
 export default function Dashboard() {
 
   const [totalUsers, setTotalUsers] = useState(0);
@@ -45,9 +44,8 @@ export default function Dashboard() {
 
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const [chartData, setChartData] = useState<ChartItem[]>([]);
-
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
@@ -56,6 +54,25 @@ export default function Dashboard() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const chartData = useMemo(() => {
+    const joined: Record<string, number> = {};
+    const active: Record<string, number> = {};
+    MONTHS.forEach((m) => { joined[m] = 0; active[m] = 0; });
+    users
+      .filter((u) => u.created_at && new Date(u.created_at).getFullYear() === selectedYear)
+      .forEach((u) => {
+        const month = MONTHS[new Date(u.created_at).getMonth()];
+        joined[month] += 1;
+        if (Number(u.status) === 1) active[month] += 1;
+      });
+    return MONTHS.map((m) => ({ day: m, joined: joined[m], active: active[m] }));
+  }, [users, selectedYear]);
+
+  const availableYears = useMemo(() =>
+    Array.from(new Set(users.map((u) => new Date(u.created_at).getFullYear())))
+      .sort((a, b) => b - a),
+  [users]);
 
   const fetchDashboardData = async () => {
 
@@ -101,50 +118,6 @@ export default function Dashboard() {
       // SAVE CATEGORIES
       setCategories(categoriesData);
 setRecentActivity(activity);
-      // USER GROWTH CHART
-      const weekDays = [
-        "Sun",
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat",
-      ];
-
-      const counts: Record<string, number> = {
-        Sun: 0,
-        Mon: 0,
-        Tue: 0,
-        Wed: 0,
-        Thu: 0,
-        Fri: 0,
-        Sat: 0,
-      };
-
-      users.forEach((user: User) => {
-
-        if (user.created_at) {
-
-          const day =
-            weekDays[
-              new Date(
-                user.created_at
-              ).getDay()
-            ];
-
-          counts[day] += 1;
-        }
-      });
-
-      const finalChart = weekDays.map(
-        (day) => ({
-          day,
-          users: counts[day],
-        })
-      );
-
-      setChartData(finalChart);
 
     } catch (error) {
 
@@ -157,9 +130,11 @@ setRecentActivity(activity);
   };
 
   const maxUsers = Math.max(
-    ...chartData.map((d) => d.users),
+    ...chartData.map((d) => Math.max(d.joined, d.active)),
     1
   );
+
+  const CHART_PX = 176;
 
   return (
    
@@ -242,51 +217,73 @@ setRecentActivity(activity);
 
               <div>
                 <h3 className="text-lg font-bold text-on-surface font-headline">
-                  User Growth
+                  Monthly User Growth
                 </h3>
 
                 <p className="text-xs text-on-surface-variant">
-                  Daily registrations overview
+                  New registrations per month — {new Date().getFullYear()}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-primary" />
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-sm bg-primary" />
+                    <span className="text-[10px] font-bold uppercase text-on-surface-variant">Joined</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-sm bg-tertiary" />
+                    <span className="text-[10px] font-bold uppercase text-on-surface-variant">Active</span>
+                  </div>
+                </div>
 
-                <span className="text-[10px] font-bold uppercase text-on-surface-variant">
-                  New Users
-                </span>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                  className="text-xs font-bold bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/20 text-on-surface outline-none cursor-pointer"
+                >
+                  {availableYears.length > 0
+                    ? availableYears.map((y) => (
+                        <option key={y} value={y}>{y}</option>
+                      ))
+                    : <option value={selectedYear}>{selectedYear}</option>
+                  }
+                </select>
               </div>
             </div>
 
             <div className="flex items-end gap-3 h-52 px-2 pb-4 border-b border-l border-outline-variant/20">
 
               {chartData.map((item, i) => {
-
-                const height =
-                  (item.users / maxUsers) * 100;
+                const joinedPx = Math.max(Math.round((item.joined / maxUsers) * CHART_PX), 4);
+                const activePx = Math.max(Math.round((item.active / maxUsers) * CHART_PX), 4);
+                const isCurrent = i === new Date().getMonth();
 
                 return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
 
-                  <div
-                    key={i}
-                    className="flex-1 flex flex-col items-center gap-1 group"
-                  >
+                    {/* Hover tooltip */}
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[9px] font-bold text-primary">{item.joined}</span>
+                      <span className="text-[9px] text-on-surface-variant">/</span>
+                      <span className="text-[9px] font-bold text-tertiary">{item.active}</span>
+                    </div>
 
-                    <span className="text-[10px] font-bold text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">
-                      {item.users}
-                    </span>
-
-                    <div
-                      className={`w-full rounded-t-sm transition-all ${
-                        i === chartData.length - 1
-                          ? "bg-primary"
-                          : "bg-primary/20 hover:bg-primary/60"
-                      }`}
-                      style={{
-                        height: `${height}%`
-                      }}
-                    />
+                    {/* Two bars side by side */}
+                    <div className="w-full flex items-end gap-0.5">
+                      <div
+                        className={`flex-1 rounded-t-sm transition-all ${
+                          isCurrent ? "bg-primary" : "bg-primary/30 hover:bg-primary/60"
+                        }`}
+                        style={{ height: `${joinedPx}px` }}
+                      />
+                      <div
+                        className={`flex-1 rounded-t-sm transition-all ${
+                          isCurrent ? "bg-tertiary" : "bg-tertiary/30 hover:bg-tertiary/60"
+                        }`}
+                        style={{ height: `${activePx}px` }}
+                      />
+                    </div>
 
                   </div>
                 );

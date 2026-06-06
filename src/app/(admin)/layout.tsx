@@ -31,10 +31,16 @@ const pathname = usePathname();
         <aside className="w-72 bg-surface-container-low border-r border-outline-variant/10 flex flex-col h-full">
 
           <div className="p-6 border-b border-outline-variant/10">
-            <h1 className="text-xl font-extrabold text-on-surface">
+            <h1
+              className="text-xl font-extrabold text-on-surface cursor-pointer hover:text-primary transition-colors"
+              onClick={() => router.push("/")}
+            >
               Mera Poster
             </h1>
-            <p className="text-xs text-on-surface-variant mt-1">
+            <p
+              className="text-xs text-on-surface-variant mt-1 cursor-pointer hover:text-primary transition-colors"
+              onClick={() => router.push("/")}
+            >
               Admin Panel
             </p>
           </div>
